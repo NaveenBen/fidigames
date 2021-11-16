@@ -1,0 +1,37 @@
+{
+  "name": "fidigamesapi",
+  "version": "1.0.0",
+  "description": "restapi for fidigames",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NaveenBen/fidigamesapi.git"
+  },
+  "keywords": [
+    "nodejs",
+    "mysql2",
+    "sequelize",
+    "cors",
+    "express",
+    "swagger-ui"
+  ],
+  "author": "naveenben",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NaveenBen/fidigamesapi/issues"
+  },
+  "homepage": "https://github.com/NaveenBen/fidigamesapi#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "mysql2": "^2.3.3",
+    "sequelize": "^6.9.0",
+    "swagger-jsdoc": "^6.1.0",
+    "swagger-ui-express": "^4.1.6"
+  }
+}
