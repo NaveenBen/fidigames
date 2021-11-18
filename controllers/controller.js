@@ -8,9 +8,9 @@ const valdiationSchema = require('../utils/validation');
 const getAllGameData = async (req, res) => {
         try{
                 var allGames = await games.findAll({order:[['game_likes_count','DESC']]});
-                res.json(allGames);
+                res.json(allGames).status(200);
         }catch(err){
-                res.json({message:err});
+                res.json({message:err}).status(400);
         }
 };
 const getGameById = async (req, res) => {
@@ -21,12 +21,12 @@ const getGameById = async (req, res) => {
                 where: { id: id }
         });
         if(gameById){
-                res.json(gameById);
+                res.json(gameById).status(200);
         }else{
-                res.json({message:'Game not found Check Game Id'});
+                res.json({message:'Game not found Check Game Id'}).status(404);
         }
         }catch(err){
-                res.json({message:err});
+                res.json({message:err}).status(400);
         }
 };
 
@@ -41,7 +41,7 @@ const getGameByCategory = async (req, res) => {
                 if(gameByCategory.length>0){
                 res.json(gameByCategory).status(200);}
                 else{
-                        res.json({message:'No games in that category'});
+                        res.json({message:'No games in that category'}).status(404);
                 }
         }catch(err){
                 res.json({message:err}).status(400);
@@ -72,13 +72,13 @@ try{
                         }
                 });
                if(editGameById==1){
-                        res.json({"msg":"game edited"});
+                        res.json({"msg":"game edited"}).status(200);
                 }else{
-                        res.json({"msg":"ID Not Found"});
+                        res.json({"msg":"ID Not Found"}).status(404);
                 }
         }
 }catch(err){
-                res.json({message:err});
+                res.json({message:err}).status(400);
         }
 };
 
@@ -99,15 +99,15 @@ const addLike = (req, res) => {
                         }
                 });
                 addLike.then((result) => {
-                        res.json({"msg":"like added"});
+                        res.json({"msg":"like added"}).status(200);
                         }
                 ).catch((err) => {
-                        res.json(err);
+                        res.json(err).status(400);
                         }
                 );
                 }
         ).catch((err) => {
-                res.json(err);
+                res.json(err).status(400);
                 }
         );
 };
@@ -129,10 +129,10 @@ const removelike = (req, res) => {
                         }
                 });
                 removelike.then((result) => {
-                        res.json({"msg":"like removed"});
+                        res.json({"msg":"like removed"}).status(200);
                         }
                 ).catch((err) => {
-                        res.json(err);
+                        res.json(err).status(400);
                         }
                 );
                 }
@@ -170,11 +170,11 @@ const loginGame = ( req,res) => {
                                 }
                         }
                         else{
-                                res.json({"msg":"login failed"});
+                                res.json({"msg":"login failed"}).status(401);
                         }
                         }
                 ).catch((err) => {
-                        res.json(err);
+                        res.json(err).status(400);
                         }
                 );
         }
@@ -200,7 +200,7 @@ const signUp = async (req, res) => {
                 res.status(200).json({"msg":"signup successful"});
         }
         }catch(err){
-                res.json(err);
+                res.json(err).status(400);
         }
 }
 const addGame =  async (req, res) => {
