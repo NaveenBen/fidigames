@@ -1,43 +1,47 @@
 const express = require('express');
 const app = express();
-const route = require('../fidigamesapi/server/routes/router.js');
+const route = require('./routes/router');
+require('dotenv').config();
 const cors = require('cors');
- const sequelize = require('../fidigamesapi/database/utils/database');
- const swaggerJsDoc = require('swagger-jsdoc');
- const swaggerUi = require('swagger-ui-express');
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
+const sequelize = require('./utils/database');
+
+//cors options
 const corsOptions = {
-    origin: 'http://localhost:4000',
+    origin: '*',
+    optionsSuccessStatus: 200
 };
 
+//swagger options
 const swaggerOptions = {
     swaggerDefinition: {
         info: {
             title: 'Fidigames API',
-            description: 'Fidigames API Documentation',
+            description: 'API Documentation',
             contact: {
-                name: 'Naveen Ben',
+                name: 'API'
             },
-            servers: ['http://localhost:3000/'],
-        },
+            servers: ['http://localhost:3000']
+        }
     },
-    apis: ['../fidigamesapi/server/routes/router.js'],
+    apis: ['./routes/router.js']
 };
 
-const swaggerDocs = swaggerJsDoc(swaggerOptions);
+const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-
-
 
 app.use(cors(corsOptions));
 app.use(express.json());
-app.use('/', route);
-sequelize.sync().then((result) => {
-    console.log('Database is connected');
-}).catch((err) => {
-console.log(err);
-});
+app.use("/",route);
 
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
+ sequelize.sync({force: true}).then(result => {
+    console.log(result);
+ }).catch(err => {
+    console.log(err);
+ });
+let port = process.env.PORT || 3000;
+app.listen(port, () => {
+    console.log(`Server is running on ${port}`);
 }
 );
