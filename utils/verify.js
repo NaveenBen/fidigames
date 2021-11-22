@@ -7,7 +7,7 @@ function verifyToken(req, res, next) {
         req.user = verified;
         next();
     }catch{
-        res.status(400).send('Invalid Token');
+        res.status(400).send('Invalid api-key');
     }
 }
 

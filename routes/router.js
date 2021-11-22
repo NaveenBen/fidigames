@@ -18,6 +18,10 @@ const gamedataController = require('../controllers/controller.js');
  *        responses:
  *         '200':
  *           description: A successful response with all the game data
+ *         '400':
+ *           description: Bad request
+ *         '401':
+ *           description: Access Denied     
  */
 routing.get('/games', verifyToken,gamedataController.getAllGameData);                    
 /**
@@ -36,16 +40,20 @@ routing.get('/games', verifyToken,gamedataController.getAllGameData);
  *             - in: "body"
  *               name: " game card object that to be added"
  *               example:
- *                   game_name: "Super Mario"
- *                   game_description: "Plumber"
- *                   game_image_url: "http://mario.game/image.png"
- *                   game_url: "http://mario.game"
+ *                   game_name: "Call of Duty"
+ *                   game_description: "Fight with other Players with guns"
+ *                   game_image_url: "http://cod.game/image.png"
+ *                   game_url: "http://cod.game"
  *                   game_minp: "1"
- *                   game_maxp: "2"
- *                   game_category: "Arcade"    
+ *                   game_maxp: "4"
+ *                   game_category: "FPS"    
  *             responses:
  *               '200':
- *                   description: A successful response with all the added game data. 
+ *                   description: A successful response with all the added game data.
+ *               '400':
+ *                   description: Bad request 
+ *               '401':
+ *                   description: Access Denied    
  *               
  */
 routing.post('/games/add',verifyToken,gamedataController.addGame);
@@ -69,7 +77,10 @@ routing.post('/games/add',verifyToken,gamedataController.addGame);
  *             responses:
  *               '200':
  *                   description: A successful response with the game data for the Id. 
- *               
+ *               '400':
+ *                   description: Bad request
+ *               '401':
+ *                   description: Access Denied               
  */
 routing.get('/games/:id',verifyToken,gamedataController.getGameById);
 /**
@@ -102,7 +113,12 @@ routing.get('/games/:id',verifyToken,gamedataController.getGameById);
  *             responses:
  *               '200':
  *                   description: A successful response with all the updated game data. 
- *     
+ *               '400':
+ *                   description: Bad request
+ *               '404':
+ *                   description: Game not found Check Game Id
+ *               '401':
+ *                   description: Access Denied              
  */
 routing.put('/games/:id',verifyToken,gamedataController.editGameById);
 /**
@@ -125,6 +141,12 @@ routing.put('/games/:id',verifyToken,gamedataController.editGameById);
  *       responses:
  *          '200':
  *             description: A successful response with all the game data from that category
+ *          '400':
+ *             description: Bad request
+ *          '404':
+ *             description: No games found in that category
+ *          '401':
+ *             description: Access Denied
  */
 routing.get('/games/category/:category',verifyToken,gamedataController.getGameByCategory);
 /**
@@ -147,6 +169,12 @@ routing.get('/games/category/:category',verifyToken,gamedataController.getGameBy
  *       responses:
  *         '200':
  *             description: A successful response on like increment
+ *         '400':
+ *             description: Bad request
+ *         '404':
+ *             description: Game not found Check Game Id
+ *         '401':
+ *             description: Access Denied      
  */
 routing.put('/games/:id/addlike',verifyToken,gamedataController.addLike);
 /**
@@ -169,6 +197,12 @@ routing.put('/games/:id/addlike',verifyToken,gamedataController.addLike);
  *       responses:
  *         '200':
  *             description: A successful message on like decrement
+ *         '400':
+ *             description: Bad request
+ *         '404':
+ *             description: Game not found Check Game Id
+ *         '401':
+ *             description: Access Denied       
  */
 routing.put('/games/:id/removelike',verifyToken,gamedataController.removelike);
 /**
@@ -189,8 +223,10 @@ routing.put('/games/:id/removelike',verifyToken,gamedataController.removelike);
  *              user_sname: "matrix" 
  *          required: true
  *          responses:
- *              '200':
- *                  description: A successful response saying user added.
+ *              '201':
+ *                  description: A successful response saying user signup successful.
+ *              '400':
+ *                  description: Bad request  
  *              
  */
 routing.post('/games/signup',gamedataController.signUp);
@@ -211,7 +247,11 @@ routing.post('/games/signup',gamedataController.signUp);
  *                   user_password: "123"      
  *             responses:
  *               '200':
- *                   description: A successful response with api-key in header and json response.            
+ *                   description: A successful response with api-key in header and json response.
+ *               '400':
+ *                   description: Bad request
+ *               '401':
+ *                   description: msg saying username or password is incorrect               
  */
  routing.post('/games/login',gamedataController.loginGame);
  routing.get('/',(req,res)=>{
