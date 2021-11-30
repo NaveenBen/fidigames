@@ -44,17 +44,14 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use("/",route);
 
-// GameCard.hasOne(User,{
-//     foreignKey: 'user_id',
-//     constraints: false,
-//     onDelete: 'CASCADE',
-//     onUpdate: 'CASCADE',
-// });
-// User.hasMany(GameCard,{
-//     foreignKey: 'user_id',
-//     constraints: false,
-//     as: 'user'
-// });
+
+User.hasMany(GameCard,{
+    foreignKey: 'user_id',
+    constraints: false,
+    as: 'user',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+});
  sequelize.sync({force: true}).then(result => {
  }).catch(err => {
     console.log(err);
