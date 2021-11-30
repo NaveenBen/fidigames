@@ -45,13 +45,7 @@ app.use(express.json());
 app.use("/",route);
 
 
-User.hasMany(GameCard,{
-    foreignKey: 'user_id',
-    constraints: false,
-    as: 'user',
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-});
+User.hasMany(GameCard, {foreignKey: User.id, sourceKey: User.id, onDelete: 'CASCADE', onUpdate: 'CASCADE', hooks: true,});
  sequelize.sync({force: true}).then(result => {
  }).catch(err => {
     console.log(err);

@@ -2,12 +2,6 @@ const Sequelize = require('sequelize');
 const sequelize = require('../utils/database');
 const User = require('../models/User')
 const GameCard = sequelize.define('gamecard', {
-    id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
-        allowNull: false,
-        primaryKey: true
-    },
     game_name: {
         type: Sequelize.STRING,
         allowNull: false
