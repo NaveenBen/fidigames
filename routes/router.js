@@ -18,7 +18,7 @@ oauth(passport);
  *    oauth2:
  *       type: oauth2
  *       flow: implicit
- *       authorizationUrl: http://localhost/auth/google
+ *       authorizationUrl: http://localhost:3000/auth/google
  *       description: "Use Google to login and get the api key and paste it in above api-key holder"
  * 
  * security:

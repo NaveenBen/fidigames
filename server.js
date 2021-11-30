@@ -14,7 +14,8 @@ const GameCard = require('./models/GameCard');
 const passport = require('passport');
 app.use(passport.initialize());
 
-
+//ports
+let port = process.env.PORT || 3000;
 //cors options
 const corsOptions = {
     origin: '*',
@@ -30,7 +31,7 @@ const swaggerOptions = {
             contact: {
                 name: 'API'
             },
-            servers: [`http://${process.env.HOST}:${process.env.PORT}`]
+            servers: [`http://localhost:${port}`]
         }
     },
     apis: ['./routes/router.js']
@@ -58,8 +59,8 @@ app.use("/",route);
  }).catch(err => {
     console.log(err);
  });
-let port = process.env.PORT || 3000;
+
 app.listen(port, () => {
-    console.log(`Server is running on https://${process.env.HOST}:${process.env.PORT}`);
+    console.log(`Server is running on https://localhost:${port}`);
 }
 );
