@@ -8,11 +8,50 @@ const valdiationSchema = require('../utils/validation');
 const getAllGameData = async (req, res) => {
         try{
                 var allGames = await games.findAll({order:[['game_likes_count','DESC']]});
-                res.json(allGames).status(200);
+                if(allGames.length>0){
+                        res.status(200).json({
+                                message: 'All Game Data',
+                                data: allGames
+                        });
+                }else{
+                        res.status(404).json({
+                                message: 'No Game Data Found',
+                                data: allGames
+                        });
+                }
         }catch(err){
                 res.json({msg:err}).status(400);
         }
 };
+const deleteGameById = async (req, res) => {
+        try{
+                console.log(req);
+                var gameId = req.params.id;
+                var game = await games.findOne({where:{id:gameId}});
+                if(game){
+                        var deleteGame = await games.destroy({where:{id:gameId}});
+                        if(deleteGame){
+                                res.status(200).json({
+                                        message: 'Game Deleted',
+                                        data: deleteGame
+                                });
+                        }else{
+                                res.status(404).json({
+                                        message: 'Game Not Found',
+                                        data: deleteGame
+                                });
+                        }
+                }else{
+                        res.status(404).json({
+                                message: 'Game Not Found',
+                                data: game
+                        });
+                }
+        }catch(err){
+                res.json({msg:err}).status(400);
+        }
+};
+
 const getGameById = async (req, res) => {
         
         try{
@@ -118,47 +157,30 @@ const removelike = async (req, res) => {
         }
 };
 
-const loginGame = async ( req,res) => {
 
+const addGame =  async (req, res) => {
         try{
-
-                const {user_username,user_password} = req.body;
-                const {error} = valdiationSchema.userSchema.validate(req.body);
-                if(error){
-                        res.json(error.details[0].message).status(400);
-                }
-                 else{   
-                         var login = await user.findOne({where: {username: user_username,}});
-                        if(login){
-                                if(bcrypt.compareSync(user_password,login.password)){
-                                //Create and assign a token
-                                        const token = await jwt.sign({id:login.id,username:login.username},"S3CR3T_K3Y",{
-                                                expiresIn: '12h'
-                                        });
-                                        res.header('api-key',token).status(200).json({"msg":"login successful","api-key":token}).send(); 
-
-                        }
-                        else{
-                                res.json({"msg":"username or password incorrect"}).status(401);
-                        }
-
-
-                }else{  
-                        res.json({"msg":"username or password incorrect"}).status(401); 
-                }
-
+                const{game_name,game_description,game_url,game_minp,game_maxp,game_category,game_image_url} = req.body;
+                const {error} = valdiationSchema.gameSchema.validate(req.body);
+        if(error){
+                res.json(error.details[0].message).status(400);
+        }else{          
+                                var addGame = await  games.create({
+                                game_name: game_name,
+                                game_description: game_description,
+                                game_url: game_url,
+                                game_minp: game_minp,
+                                game_maxp: game_maxp,
+                                game_category: game_category,
+                                game_image_url: game_image_url,
+                        });
+                        res.json({msg:"game added"}).status(200);
         }
-
         }catch(err){
-                res.json({msg:err}).status(400);
-        }
-
-        
-
- 
+                res.json(err).status(400);
+        }     
 };
 const signUp = async (req, res) => {
-
         try{
                 const {user_fname,user_username,user_password,user_sname} = req.body;
                 const {error} = valdiationSchema.userSchema.validate(req.body);
@@ -184,44 +206,61 @@ const signUp = async (req, res) => {
                                         sname: user_sname
                                 });
                                  res.status(201).json({"msg":"signup successful"});
-
                }
         }
         }catch(err){
                 res.json(err).status(400);
         }
-}
-const addGame =  async (req, res) => {
-
+};
+const loginGame = async ( req,res) => {
         try{
-                const{game_name,game_description,game_url,game_minp,game_maxp,game_category,game_image_url} = req.body;
-                const {error} = valdiationSchema.gameSchema.validate(req.body);
-        if(error){
-                res.json(error.details[0].message).status(400);
-        }else{          
-                                var addGame = await  games.create({
-                                game_name: game_name,
-                                game_description: game_description,
-                                game_url: game_url,
-                                game_minp: game_minp,
-                                game_maxp: game_maxp,
-                                game_category: game_category,
-                                game_image_url: game_image_url,
-                        });
-                        res.json({msg:"game added"}).status(200);
+                const {user_username,user_password} = req.body;
+                const {error} = valdiationSchema.userSchema.validate(req.body);
+                if(error){
+                        res.json(error.details[0].message).status(400);
+                }
+                 else{   
+                        var login = await user.findOne({where: {username: user_username,}});
+                        if(login){
+                                if(bcrypt.compareSync(user_password,login.password)){
+                                //Create and assign a token
+                                        const token =  jwt.sign({id:login.id,username:login.username},"S3CR3T_K3Y",{
+                                                expiresIn: '12h'
+                                        });
+                                        res.header('api-key',token).status(200).json({"msg":"login successful","api-key":token}).send(); 
+                        }
+                        else{
+                                res.json({"msg":"username or password incorrect"}).status(401);
+                        }
+                }else{  
+                        res.json({"msg":"username or password incorrect"}).status(401); 
+                }
         }
         }catch(err){
-                res.json(err).status(400);
-        }     
+                res.json({msg:err}).status(400);
+        }
 };
+
+const googleLogin = async (req,res) => {
+        try{
+                 const token =  jwt.sign({id:req.user.id,username:req.user.displayName},"S3CR3T_K3Y",{
+                        expiresIn: '12h'
+                });
+                res.status(200).json({"msg":"login successful","api-key":token}).send();
+        }catch(err){
+                res.json({msg:err}).status(400);
+        }
+}
 module.exports = {
         getAllGameData,
         signUp,
         loginGame,
         addGame, 
         getGameById,
+        deleteGameById,
         getGameByCategory,
         editGameById,
         addLike,
-        removelike     
+        removelike,
+        googleLogin     
 };

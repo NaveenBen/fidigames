@@ -6,8 +6,7 @@ const jwtv = function (passport) {
     opts.jwtFromRequest = ExtractJwt.fromHeader('api-key');
     opts.secretOrKey = 'S3CR3T_K3Y';//jwt secret key
     passport.use(new JwtStrategy(opts, function (jwt_payload, done) {
-        // console.log(jwt_payload);
-        return done(null, jwt_payload);
+         return done(null, jwt_payload);
     }));
 };
 

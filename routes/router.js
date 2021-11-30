@@ -1,19 +1,33 @@
 const express = require('express');
 const routing = express.Router();
-const verifyToken = require('../utils/verify');
 const gamedataController = require('../controllers/controller.js');
-
+const passport = require('passport');
+const auth = require('../utils/auth');
+const oauth = require('../utils/oauth');
+auth.jwtv(passport);
+oauth(passport);
 /**
  * @swagger
+ * securityDefinitions:
+ *    api-key:
+ *       type: apiKey
+ *       name: api-key
+ *       in: header
+ *       description: "API key to access the API"
+ *       required: true
+ *    oauth2:
+ *       type: oauth2
+ *       flow: implicit
+ *       authorizationUrl: http://localhost/auth/google
+ *       description: "Use Google to login and get the api key and paste it in above api-key holder"
+ * 
+ * security:
+ *    - api-key: []  
  * /games:
  *      get:
  *        tags:
  *              - Games Endpoint
  *        summary: Get all games
- *        parameters:
- *          - name: api-key
- *            in: header
- *            required: true 
  *        description: Returns all the game cards with more likes on top
  *        responses:
  *         '200':
@@ -21,22 +35,20 @@ const gamedataController = require('../controllers/controller.js');
  *         '400':
  *           description: Bad request
  *         '401':
- *           description: Access Denied     
+ *           description: Unauthorized
+ *        security:
+ *          - api-key: [] 
  */
-routing.get('/games', verifyToken,gamedataController.getAllGameData);                    
+routing.get('/games', passport.authenticate('jwt',{session:false}),gamedataController.getAllGameData);                    
 /**
  * @swagger
- * /games/add:
+ * /games:
  *          post:
  *             tags:
  *                  - Games Endpoint
  *             summary : Add a new game
  *             description : " Add new game to Database "
- *             parameters:
- *             - name: api-key
- *               in: header
- *               required: true    
- *               example: "apikey" 
+ *             parameters: 
  *             - in: "body"
  *               name: " game card object that to be added"
  *               example:
@@ -53,10 +65,39 @@ routing.get('/games', verifyToken,gamedataController.getAllGameData);
  *               '400':
  *                   description: Bad request 
  *               '401':
- *                   description: Access Denied    
+ *                   description: Access Denied
+ *             security:
+ *                - api-key: []    
  *               
  */
-routing.post('/games/add',verifyToken,gamedataController.addGame);
+routing.post('/games',passport.authenticate('jwt',{session:false}),gamedataController.addGame);
+/**
+ * @swagger
+ * /games/{id}:
+ *          delete:
+ *             tags:
+ *                  - Games Endpoint
+ *             summary : get a game by id
+ *             description : "acessess a game card through its id"
+ *             parameters: 
+ *             - in: "path"
+ *               name: "id" 
+ *               required: true
+ *               example: "1"  
+ *             responses:
+ *               '200':
+ *                   description: A successful response about the deleted game. 
+ *               '400':
+ *                   description: Bad request
+ *               '404':
+ *                   description: Game not found
+ *               '401':
+ *                   description: Access Denied
+ *             security:
+ *                - api-key: []
+ *                            
+ */
+routing.delete('/games/:id',passport.authenticate('jwt',{session:false}),gamedataController.deleteGameById);
 /**
  * @swagger
  * /games/{id}:
@@ -65,11 +106,7 @@ routing.post('/games/add',verifyToken,gamedataController.addGame);
  *                  - Games Endpoint
  *             summary : get a game by id
  *             description : "acessess a game card through its id"
- *             parameters:
- *             - name: api-key
- *               in: header
- *               example: "apikey"
- *               required: true    
+ *             parameters: 
  *             - in: "path"
  *               name: "id" 
  *               required: true
@@ -80,9 +117,12 @@ routing.post('/games/add',verifyToken,gamedataController.addGame);
  *               '400':
  *                   description: Bad request
  *               '401':
- *                   description: Access Denied               
+ *                   description: Access Denied
+ *             security:
+ *                - api-key: []
+ *                            
  */
-routing.get('/games/:id',verifyToken,gamedataController.getGameById);
+routing.get('/games/:id',passport.authenticate('jwt',{session:false}),gamedataController.getGameById);
 /**
  * @swagger
  * /games/{id}:
@@ -92,10 +132,6 @@ routing.get('/games/:id',verifyToken,gamedataController.getGameById);
  *             summary : Edit a game by id
  *             description : "Edit a game card through its id"
  *             parameters:
- *             - name: api-key
- *               in: header
- *               required: true
- *               example: "apikey"   
  *             - in: "path"
  *               name: "id" 
  *               required: true
@@ -118,9 +154,11 @@ routing.get('/games/:id',verifyToken,gamedataController.getGameById);
  *               '404':
  *                   description: Game not found Check Game Id
  *               '401':
- *                   description: Access Denied              
+ *                   description: Access Denied
+ *             security:
+ *                - api-key: []              
  */
-routing.put('/games/:id',verifyToken,gamedataController.editGameById);
+routing.put('/games/:id',passport.authenticate('jwt',{session:false}),gamedataController.editGameById);
 /**
  * @swagger
  * /games/category/{category}:
@@ -129,11 +167,7 @@ routing.put('/games/:id',verifyToken,gamedataController.editGameById);
  *            - Games Endpoint
  *       summary: "get only games from the selected category"
  *       description: Returns all the game cards with more like on top from a category
- *       parameters:
- *       - name: api-key
- *         in: header
- *         required: true
- *         example: "apikey"    
+ *       parameters:   
  *       - in: "path"
  *         name: "category"
  *         required: true
@@ -147,8 +181,10 @@ routing.put('/games/:id',verifyToken,gamedataController.editGameById);
  *             description: No games found in that category
  *          '401':
  *             description: Access Denied
+ *       security:
+ *          - api-key: []
  */
-routing.get('/games/category/:category',verifyToken,gamedataController.getGameByCategory);
+routing.get('/games/category/:category',passport.authenticate('jwt',{session:false}),gamedataController.getGameByCategory);
 /**
  * @swagger
  * /games/{id}/addlike:
@@ -157,11 +193,7 @@ routing.get('/games/category/:category',verifyToken,gamedataController.getGameBy
  *            - Games Endpoint
  *       summary: "increment likes in the game"
  *       description: Increments the likes for a game card through its id
- *       parameters:
- *       - name: api-key
- *         in: header
- *         required: true 
- *         example: "apikey"      
+ *       parameters:     
  *       - in: "path"
  *         name: "id"
  *         required: true
@@ -174,22 +206,20 @@ routing.get('/games/category/:category',verifyToken,gamedataController.getGameBy
  *         '404':
  *             description: Game not found Check Game Id
  *         '401':
- *             description: Access Denied      
+ *             description: Access Denied
+ *       security:
+ *          - api-key: []      
  */
-routing.put('/games/:id/addlike',verifyToken,gamedataController.addLike);
+routing.put('/games/:id/addlike',passport.authenticate('jwt',{session:false}),gamedataController.addLike);
 /**
  * @swagger
  * /games/{id}/removelike:
- *    put:
+ *    delete:
  *       tags:
  *              - Games Endpoint
  *       summary: "decrement likes in the game"
  *       description: Decrements the likes for a game card through its id
- *       parameters:
- *       - name: api-key
- *         in: header
- *         required: true 
- *         example: "apikey"  
+ *       parameters:  
  *       - in: "path"
  *         name: "id"
  *         required: true
@@ -202,9 +232,11 @@ routing.put('/games/:id/addlike',verifyToken,gamedataController.addLike);
  *         '404':
  *             description: Game not found Check Game Id
  *         '401':
- *             description: Access Denied       
+ *             description: Access Denied
+ *       security:
+ *          - api-key: []       
  */
-routing.put('/games/:id/removelike',verifyToken,gamedataController.removelike);
+routing.delete('/games/:id/removelike',passport.authenticate('jwt',{session:false}),gamedataController.removelike);
 /**
  * @swagger
  * /games/signup:
@@ -254,9 +286,15 @@ routing.post('/games/signup',gamedataController.signUp);
  *                   description: msg saying username or password is incorrect               
  */
  routing.post('/games/login',gamedataController.loginGame);
+
+ routing.get('/auth/google',passport.authenticate('google',{scope:['profile','email'],session:false}));
+
+routing.get('/auth/google/callback', passport.authenticate('google',{
+   session: false,
+   scope: ['profile','email']}),
+   gamedataController.googleLogin);
+
  routing.get('/',(req,res)=>{
-
     res.redirect('/api-docs');
-
  });
 module.exports = routing;

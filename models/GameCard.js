@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../utils/database');
-
+const User = require('../models/User')
 const GameCard = sequelize.define('gamecard', {
     id: {
         type: Sequelize.INTEGER,
@@ -43,5 +43,4 @@ const GameCard = sequelize.define('gamecard', {
     },
     
 });
-
 module.exports = GameCard;

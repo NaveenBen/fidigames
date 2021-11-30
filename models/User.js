@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../utils/database');
-
+const gameCard = require('../models/GameCard')
 const User = sequelize.define('user', {
     id: {
         type: Sequelize.INTEGER,
