@@ -5,6 +5,26 @@ const bcrypt = require('bcryptjs');
 const valdiationSchema = require('../utils/validation');
 
 
+const getGameByUserId = async (req, res) => {
+         try{
+                const userId = jwt.verify(req.headers['api-key'], "S3CR3T_K3Y")['id'];
+                const game = await games.findAll({where: {UserId: userId}});
+                if(game.length>0){
+                        res.status(200).json({
+                                message: 'Game found',
+                                game: game
+                        })
+                }else{
+                        res.status(404).json({
+                                message: 'No Game found',
+                        })
+                }
+         }catch(err){
+                res.json({msg:err}).status(400);
+         }
+        
+}
+
 const getAllGameData = async (req, res) => {
         try{
                 var allGames = await games.findAll({order:[['game_likes_count','DESC']]});
@@ -25,22 +45,28 @@ const getAllGameData = async (req, res) => {
 };
 const deleteGameById = async (req, res) => {
         try{
-                console.log(req);
                 var gameId = req.params.id;
                 var game = await games.findOne({where:{id:gameId}});
                 if(game){
-                        var deleteGame = await games.destroy({where:{id:gameId}});
-                        if(deleteGame){
-                                res.status(200).json({
+                        const userId = jwt.verify(req.headers['api-key'], "S3CR3T_K3Y")['id'];
+                        if(game.UserId == userId){
+                                var deleteGame = await games.destroy({where:{id:gameId}});
+                                if(deleteGame){
+                                        res.status(200).json({
                                         message: 'Game Deleted',
                                         data: deleteGame
-                                });
-                        }else{
-                                res.status(404).json({
+                                        });
+                                 }else{
+                                        res.status(404).json({
                                         message: 'Game Not Found',
                                         data: deleteGame
                                 });
                         }
+                        }else{
+                                res.status(401).json({
+                                message: 'you are not authorized to delete this game'
+                        });
+                }
                 }else{
                         res.status(404).json({
                                 message: 'Game Not Found',
@@ -87,28 +113,30 @@ const editGameById = async (req, res) => {
                 const { id } = req.params;
                 const { game_name, game_description, game_url,game_minp,game_maxp,game_category,game_image_url} = req.body;
                 const {error} = valdiationSchema.gameSchema.validate(req.body);
+
                 if(error){
                         res.json(error.details[0].message).status(400);
                 }
                 else{
-                        var editGameById = await games.update({
-                        game_name: game_name,
-                        game_description: game_description,
-                        game_url: game_url,
-                        game_minp: game_minp,
-                        game_maxp: game_maxp,
-                        game_category: game_category,
-                        game_image_url: game_image_url,
-                }, {
-                        where: {
-                                id: id
+                        const game = await games.findOne({where: {id: id}});
+                        const userId = jwt.verify(req.headers['api-key'], "S3CR3T_K3Y")['id'];
+                        if(game.UserId == userId){
+                                var editGameById = await games.update({
+                                        game_name: game_name,
+                                        game_description: game_description,
+                                        game_url: game_url,
+                                        game_minp: game_minp,
+                                        game_maxp: game_maxp,
+                                        game_category: game_category,
+                                        game_image_url: game_image_url,}, {where: {id: id}});
+                                if(editGameById){
+                                        res.json({message:'Game Edited'}).status(200);
+                                }else{
+                                        res.json({message:'Game not edited'}).status(404);
+                                }
+                        }else{
+                                res.json({message:'You are not authorized to edit this game'}).status(401);
                         }
-                });
-               if(editGameById==1){
-                        res.json({"msg":"game edited"}).status(200);
-                }else{
-                        res.json({"msg":"ID Not Found"}).status(404);
-                }
         }
         }catch(err){
                 res.json({msg:err}).status(400);
@@ -165,7 +193,9 @@ const addGame =  async (req, res) => {
         if(error){
                 res.json(error.details[0].message).status(400);
         }else{          
+                                var decodedToken = jwt.verify(req.headers['api-key'], "S3CR3T_K3Y");
                                 var addGame = await  games.create({
+                                UserId : decodedToken['id'],
                                 game_name: game_name,
                                 game_description: game_description,
                                 game_url: game_url,
@@ -174,7 +204,11 @@ const addGame =  async (req, res) => {
                                 game_category: game_category,
                                 game_image_url: game_image_url,
                         });
-                        res.json({msg:"game added"}).status(200);
+                        if(addGame){
+                                res.json({"msg":"game added"}).status(200);
+                        }else{
+                                res.json({"msg":"Game not added"}).status(404);
+                        }
         }
         }catch(err){
                 res.json(err).status(400);
@@ -205,7 +239,12 @@ const signUp = async (req, res) => {
                                         fname: user_fname,
                                         sname: user_sname
                                 });
-                                 res.status(201).json({"msg":"signup successful"});
+                                if(signup){
+                                        res.json({msg:"user added"}).status(200);
+                                }
+                                else{
+                                        res.json({msg:"user not added"}).status(404);
+                                }
                }
         }
         }catch(err){
@@ -262,5 +301,7 @@ module.exports = {
         editGameById,
         addLike,
         removelike,
-        googleLogin     
+        googleLogin,
+        getGameByUserId
+             
 };

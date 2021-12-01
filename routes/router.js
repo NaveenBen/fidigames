@@ -239,6 +239,25 @@ routing.put('/games/:id/addlike',passport.authenticate('jwt',{session:false}),ga
 routing.delete('/games/:id/removelike',passport.authenticate('jwt',{session:false}),gamedataController.removelike);
 /**
  * @swagger
+ * /gamesbyuser:
+ *    get:
+ *       tags:
+ *          - Games Endpoint
+ *       summary: "get all games by user"
+ *       description: Returns all the game cards for a user
+ *       responses:
+ *           '200':
+ *             description: A successful response with all the game data for that user
+ *           '400':
+ *             description: Bad request
+ *           '404':
+ *             description: No games found for that user
+ *       security:
+ *          - api-key: [] 
+ */
+routing.get('/gamesbyuser',passport.authenticate('jwt',{session:false}),gamedataController.getGameByUserId);
+/**
+ * @swagger
  * /games/signup:
  *      post:
  *          tags:
@@ -286,6 +305,8 @@ routing.post('/games/signup',gamedataController.signUp);
  *                   description: msg saying username or password is incorrect               
  */
  routing.post('/games/login',gamedataController.loginGame);
+
+
 
  routing.get('/auth/google',passport.authenticate('google',{scope:['profile','email'],session:false}));
 

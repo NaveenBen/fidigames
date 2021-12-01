@@ -55,6 +55,7 @@ app.use("/",route);
 //     constraints: false,
 //     as: 'user'
 // });
+
  sequelize.sync({force: true}).then(result => {
  }).catch(err => {
     console.log(err);
