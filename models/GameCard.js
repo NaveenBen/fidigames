@@ -12,6 +12,11 @@ const GameCard = sequelize.define('gamecard', {
         type: Sequelize.STRING,
         allowNull: false
     },
+    UserId: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: '0'
+    },
     game_description: {
         type: Sequelize.STRING,
         allowNull: false
