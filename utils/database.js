@@ -5,7 +5,7 @@ const Sequelize = require('sequelize');
 //     dialect: 'sqlite',
 // });
 
-const sequelize = new Sequelize(DATABASE_URL,{
+const sequelize = new Sequelize(process.env.DATABASE_URL,{
     dialect: 'postgres',
     protocol: 'postgres',
 });
