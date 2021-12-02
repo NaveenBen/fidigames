@@ -16,6 +16,7 @@ app.use(passport.initialize());
 
 //ports
 let port = process.env.PORT || 3000;
+console.log(process.env);
 //cors options
 const corsOptions = {
     origin: '*',
